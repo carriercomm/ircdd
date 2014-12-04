@@ -6,10 +6,8 @@ require 'fileutils'
 Vagrant.require_version ">= 1.6.0"
 
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "cloud-config.yaml")
-CONFIG = File.join(File.dirname(__FILE__), "vm-config.rb")
 
 # Defaults for config options defined in CONFIG
-$num_instances = 1
 $update_channel = "alpha"
 $enable_serial_logging = false
 $vb_gui = false
@@ -17,18 +15,21 @@ $vb_memory = 1024
 $vb_cpus = 1
 $synced_folder = "."
 
-# Attempt to apply the deprecated environment variable NUM_INSTANCES to
-# $num_instances while allowing config.rb to override it
-if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
-  $num_instances = ENV["NUM_INSTANCES"].to_i
-end
+$num_instances=1
+
+$expose_app_tcp=5799
+
+$expose_rdb_client=28015
+$expose_rdb_cluster=29015
+$expose_rdb_admin=8080
+
+$expose_lookupd_http=4161
+$expose_lookupd_tcp=4160
+$expose_nsqd_http=4151
+$expose_nsqd_tcp=4150
 
 if ENV["SYNCED_FOLDER"]
     $synced_folder = ENV["SYNCED_FOLDER"]
-end
-
-if File.exist?(CONFIG)
-  require CONFIG
 end
 
 Vagrant.configure("2") do |config|
@@ -76,23 +77,40 @@ Vagrant.configure("2") do |config|
         end
       end
 
-      if $expose_docker_tcp
-        config.vm.network "forwarded_port", guest: 3375, host: ($expose_docker_tcp + i - 1), auto_correct: true
-      end
-
       if $expose_app_tcp
         config.vm.network "forwarded_port", guest: 5799, host: ($expose_app_tcp + i - 1), auto_correct: true
       end
 
-      if $expose_rdb
-        config.vm.network "forwarded_port", guest: 28015, host: ($expose_rdb + i - 1), auto_correct: true
-        config.vm.network "forwarded_port", guest: 29015, host: (29015 + i - 1), auto_correct: true
-        config.vm.network "forwarded_port", guest: 8080, host: (8080 + i - 1), auto_correct: true
+      if $expose_rdb_client
+        config.vm.network "forwarded_port", guest: 28015, host: ($expose_rdb_client + i - 1), auto_correct: true
       end
 
-      if $expose_nsqlookupd_http
-        config.vm.network "forwarded_port", guest: 4161, host: ($expose_nsqlookupd_http + i - 1), auto_correct: true
+      if $expose_rdb_cluster
+        config.vm.network "forwarded_port", guest: 29015, host: ($expose_rdb_cluster + i - 1), auto_correct: true
       end
+
+      if $expose_rdb_admin
+        config.vm.network "forwarded_port", guest: 8080, host: ($expose_rdb_admin + i - 1), auto_correct: true
+      end
+
+      if $expose_lookupd_http
+        config.vm.network "forwarded_port", guest: 4161, host: ($expose_lookupd_http + i - 1), auto_correct: true
+      end
+
+      if $expose_lookupd_tcp
+          config.vm.network "forwarded_port", guest: 4160, host: ($expose_lookupd_tcp + i - 1), auto_correct: true
+      end
+
+      if $expose_nsqd_http
+          config.vm.network "forwarded_port", guest: 4151, host: ($expose_nsqd_http + i - 1), auto_correct: true
+      end
+
+      if $expose_nsqd_tcp
+          config.vm.network "forwarded_port", guest: 4150, host: ($expose_nsqd_tcp + i - 1), auto_correct: true
+      end
+
+      config.vm.network "forwarded_port", guest: 7001, host: (7001 + i - 1), auto_correct: true
+      config.vm.network "forwarded_port", guest: 4001, host: (4001 + i - 1), auto_correct: true
 
       config.vm.provider :vmware_fusion do |vb|
         vb.gui = $vb_gui
@@ -115,8 +133,9 @@ Vagrant.configure("2") do |config|
         config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
       end
 
-      config.vm.synced_folder $synced_folder, "/home/core/ircdd", type:"rsync",
-          rsync__exclude: "../../.git/"
+      config.vm.synced_folder $synced_folder, "/home/core/ircdd", type:"rsync"
+
+      config.ssh.forward_agent = true
 
     end
   end

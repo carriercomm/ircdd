@@ -1,17 +1,24 @@
 #cloud-config
 coreos:
   etcd:
-    addr: $public_ipv4:4001
-    peer-addr: $public_ipv4:7001
-    discovery: https://discovery.etcd.io/776a1401ba4e73f5d731a3dbb61c23fb
+    addr: <pubip>:4001
+    peer-addr: <pubip>:7001
+    discovery: https://discovery.etcd.io/<token>
   fleet:
-    public-ip: $public_ipv4
+    public-ip: <pubip>
   units:
   - name: etcd.service
     command: start
   - name: fleet.service
     command: start
+
 write_files:
+- path: /etc/environment
+  permissions: 0644
+  owner: root
+  content: |
+      COREOS_PUBLIC_IPV4=<pubip>
+      COREOS_PRIVATE_IPV4=<pubip>
 - path: /home/core/nsqlookupd-registration-loop.sh
   permissions: 777
   owner: root
