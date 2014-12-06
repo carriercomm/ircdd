@@ -65,7 +65,13 @@ class IRCDDUser(IRCUser):
 
     def userJoined(self, group, user_name, user_hostname):
         """
-        Indicate that a user has joined the IRCDD server.
+        Sends a /join message to the connected user.
+
+        :param group: the group which received a /join.
+
+        :param user_name: the user who joined.
+
+        :param user_hostname: the hostname from which the user joined.
         """
         self.join(
             "%s!%s@%s" % (user_name, user_name, user_hostname),
@@ -73,7 +79,13 @@ class IRCDDUser(IRCUser):
 
     def userLeft(self, group, user_name, reason=None):
         """
-        Indicate that a user has left the IRCDD server.
+        Sends a /part message to the connected user.
+
+        :param group: the group which received /part.
+
+        :param user_name: the user who left.
+
+        :param reason: the reason the user left.
         """
         assert reason is None or isinstance(reason, unicode)
 
@@ -84,8 +96,13 @@ class IRCDDUser(IRCUser):
 
     def irc_JOIN(self, prefix, params):
         """
-        Add a user into the specified group, if it exists.
+        Join the specified group.
+
+        :param prefix: the prefix where the group lives.
+
+        :param params: the params for the join.
         """
+
         try:
             groupName = params[0].decode(self.encoding)
         except UnicodeDecodeError:
@@ -118,8 +135,13 @@ class IRCDDUser(IRCUser):
 
     def irc_NAMES(self, prefix, params):
         """
-        Return a list of names of the groups available on the server.
+        Names query.
+
+        :param prefix: the prefix which to query.
+
+        :param params: the parameter list for the names query.
         """
+
         try:
             groupName = params[-1].decode(self.encoding)
         except UnicodeDecodeError:
@@ -148,9 +170,14 @@ class IRCDDUser(IRCUser):
         self.realm.lookupGroup(groupName).addCallbacks(cbGroup, ebGroup)
 
     def irc_PART(self, prefix, params):
-        """Part message
+        """
+        Part message.
 
         Parameters: <channel> *( "," <channel> ) [ <Part Message> ]
+
+        :param prefix: the prefix from which to part.
+
+        :param params: the params for the /part message.
         """
         try:
             groupName = params[0].decode(self.encoding)
@@ -183,12 +210,18 @@ class IRCDDUser(IRCUser):
         self.realm.lookupGroup(groupName).addCallbacks(cbGroup, ebGroup)
 
     def irc_LIST(self, prefix, params):
-        """List query
+        """
+        List query
 
         Return information about the indicated channels, or about all
-        channels if none are specified.
+        channels if none are specified. Queries ``RDB`` to obtain
+        consistent global information.
 
         Parameters: [ <channel> *( "," <channel> ) [ <target> ] ]
+
+        :param prefix: the prefix which to query.
+
+        :param params: the parameter list for the query.
         """
         # << list #python
         # >> :orwell.freenode.net 321 exarkun Channel :Users  Name
@@ -238,9 +271,14 @@ class IRCDDUser(IRCUser):
                   for user in group["users"].iterkeys()])
 
     def irc_WHO(self, prefix, params):
-        """Who query
+        """
+        Who query. Queries ``RDB`` to obtain consistent information.
 
         Parameters: [ <mask> [ "o" ] ]
+
+        :param prefix: the prefix whic hto query.
+
+        :param params: the query params.
         """
 
         if not params:
@@ -273,9 +311,15 @@ class IRCDDUser(IRCUser):
             d.addCallbacks(self._userWho, ebUser)
 
     def irc_WHOIS(self, prefix, params):
-        """Whois query
+        """
+        Whois query. Consults the ``RDB`` cluster to obtain
+        consistent information.
 
         Parameters: [ <target> ] <mask> *( "," <mask> )
+
+        :param prefix: the prefix which to query.
+
+        :param params: the parameters for the query.
         """
         def cbUser(user):
             self.whois(

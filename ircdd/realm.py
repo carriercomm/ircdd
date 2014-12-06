@@ -21,6 +21,11 @@ class ShardedRealm(object):
     to the local instance).
     It subscribes to groups on behalf of the locally connected users
     and performs message relaying to the latter.
+
+    :param ctx: an initialized context which will be used to access
+    ``RDB`` and ``NSQ``.
+
+    :param name: the name of the realm.
     """
 
     implements(portal.IRealm, iwords.IChatService)
@@ -51,6 +56,8 @@ class ShardedRealm(object):
         Returns a new ShardedUser for the given avatar id.
         The ShardedUser serves as a controller to the user's
         model.
+
+        :param name: the name of the user to return.
         """
         return ShardedUser(self.ctx, name)
 
@@ -59,13 +66,22 @@ class ShardedRealm(object):
         Returns a new ShardedGroup for the given group name.
         The ShardedGroup severs as a controller to the group's
         model.
+
+        :param name: the name of the group to return.
         """
         return ShardedGroup(self.ctx, name)
 
     def logoutFactory(self, avatar, facet):
         """
         Factory for providing logout functionality.
+        Returns a logout function that removes tthe avatar from
+        the realm.
+
+        :param avatar: the avatar object :class:`ircdd.user.ShardedUser`).
+
+        :param facet: the facet for the logout.
         """
+
         def logout():
             getattr(facet, "logout", lambda: None)()
             avatar.realm = avatar.mind = None
@@ -78,6 +94,13 @@ class ShardedRealm(object):
         and connect it with the client connection (mind).
         At this point the avatar has been authenticated and the
         avatar's model must exist in the RDB table.
+
+        :param avatarId: the nickname (id) of the requested avatar.
+
+        :param mind: a :class:`twisted.words.service.IRCUser` instance
+        representing the user connection.
+
+        :param interfaces: a list of interfaces for the request.
         """
         if isinstance(avatarId, str):
             avatarId = avatarId.decode(self._encoding)
@@ -112,8 +135,10 @@ class ShardedRealm(object):
 
     def getUser(self, name):
         """
-        Returns a user if she is registered with the system.
-        Also verifies that the name is valid unicode.
+        Returns the requested user; if the user does not exist they will
+        be created if the ``createUserOnRequest`` flag is set.
+
+        :param name: the name of the user.
         """
         assert isinstance(name, unicode)
 
@@ -133,6 +158,8 @@ class ShardedRealm(object):
         the user must be connected to some other node, so a ShardedUser
         with a ProxyIRCDDUser for mind is returned. If the session is
         not valid, fail with NoSuchUser.
+
+        :param name: the name of the user to look for.
         """
         assert isinstance(name, unicode)
         name = name.lower()
@@ -159,6 +186,8 @@ class ShardedRealm(object):
         controller for a user's model. At this point the
         user is authenticated and the profile must exist
         in the RDB table.
+
+        :param name: the name for the new user.
         """
         assert isinstance(name, unicode)
 
@@ -180,6 +209,8 @@ class ShardedRealm(object):
     def lookupGroup(self, name):
         """
         Looks for the group in the local shard's store.
+
+        :param name: the name of the group.
         """
         assert isinstance(name, unicode)
         name = name.lower()
@@ -192,7 +223,10 @@ class ShardedRealm(object):
 
     def getGroup(self, name):
         """
-        Get a group in the local shard's store.
+        Returns the requested group. If the group does not exist
+        it is created if the ``createGroupOnRequest`` flag is set.
+
+        :param name: the name of the group.
         """
         assert isinstance(name, unicode)
 
@@ -207,8 +241,10 @@ class ShardedRealm(object):
 
     def addGroup(self, group):
         """
-        Adds a group to the local shard's store.
-        If the group already exists return a DuplicateGroup error.
+        Adds a group to this realm.
+
+        :param group: the :class:`ircdd.group.ShardedGroup`
+        instance to add.
         """
         if group.name in self.groups:
             return defer.fail(failure.Failure(ewords.DuplicateGroup()))
@@ -218,8 +254,10 @@ class ShardedRealm(object):
 
     def createGroup(self, name):
         """
-        Verify that the groups name is valid unicode.
-        If the group doesn't already exist, create it.
+        Creates a new group and returns the :class:`ircdd.group.ShardedGroup`
+        instance that represents it.
+
+        :param name: the name for the new group.
         """
         assert isinstance(name, unicode)
 

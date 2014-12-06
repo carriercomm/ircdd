@@ -24,6 +24,10 @@ class IRCDDFactory(protocol.ServerFactory):
         self._serverInfo = ctx['server_info']
 
     def buildProtocol(self, addr):
+        """
+        Builds a new protocol instance to serve a new client
+        connection.
+        """
         p = self.protocol()
         p.factory = self
         p.ctx = self.ctx
