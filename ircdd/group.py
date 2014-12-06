@@ -6,13 +6,19 @@ from twisted.python import failure, log
 
 
 class ShardedGroup(object):
-    implements(iwords.IGroup)
-
     """
     A group which may exist in a sharded state on different
     servers. It subscribes to its own topic on the message queue
     and sends/receives remote messages.
+
+    :param ctx: an initialized context object that will be used for
+    ``RDB`` and ``NSQ`` access.
+
+    :param name: the name of the group.
     """
+
+    implements(iwords.IGroup)
+
     def __init__(self, ctx, name):
         self.name = name
         self.users = {}
@@ -153,7 +159,15 @@ class ShardedGroup(object):
     def receive(self, sender_name, recipient, message):
         """
         Multicasts the message to all local users.
+
+        :param sender_name: the name of the sender.
+
+        :param recipient: an object representing the local
+        recipient.
+
+        :param message: a dict containing the message data
         """
+
         assert recipient is self
 
         recipients = []
@@ -179,6 +193,8 @@ class ShardedGroup(object):
         Attempts to set the group meta in RDB.
         If successful, the local meta will be set via the
         observer thread.
+
+        :param meta: the dict that contains the new metadata.
         """
         self.ctx.db.setGroupTopic(self.name,
                                   meta["topic"],
@@ -188,13 +204,19 @@ class ShardedGroup(object):
 
     def updateMeta(self, meta):
         """
-        Updates the local instance's meta
+        Updates the local instance's meta.
+
+        :param meta: the updated metadata.
         """
         self.meta = meta
         self.notifyMetaChange()
         return defer.succeed(None)
 
     def notifyMetaChange(self):
+        """
+        Notifies the local users of a metadata change.
+        """
+
         sets = []
         # Maybe dispatch this on NSQ to notify the rest?
         # Or just make it happen on the observation thread.
@@ -211,6 +233,8 @@ class ShardedGroup(object):
         Submits a `join` message on this group's topic,
         notifying remote shards of the event so that they
         can in turn relay it to their users.
+
+        :param added_user_name: the name of the added user.
         """
         message = {
             "type": "join",
@@ -224,6 +248,11 @@ class ShardedGroup(object):
     def notifyAdd(self, added_user_name, added_user_hostname):
         """
         Notify the local users of a `join` event.
+
+        :param added_user_name: the name of the added user.
+
+        :param added_user_hostname: the hostname to which
+        the user was added.
         """
         additions = []
 
@@ -238,6 +267,10 @@ class ShardedGroup(object):
     def notifyRemove(self, removed_user_name, reason="unknown reason"):
         """
         Notify the local users of a `part` event.
+
+        :param removed_user_name: the name of the user that was removed.
+
+        :param reason: the reason the user was removed.
         """
         removals = []
         for user in self.local_sessions.itervalues():
@@ -254,6 +287,10 @@ class ShardedGroup(object):
         """
         Publishes a `part` message to this group's topic in order to
         notify other instances if the event.
+
+        :param removed_user_name: the name of the removed user.
+
+        :param reason: the reason the user was removed.
         """
         message = {
             "type": "part",

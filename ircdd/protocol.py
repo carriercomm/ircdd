@@ -13,6 +13,7 @@ class ProxyIRCDDUser():
     It is used when the lcoal node must operate on a ShardedUser
     which is connected to a different node.
     """
+
     def __init__(self, ctx, name):
         """
         Initializes a proxy ircdd user object.
@@ -30,6 +31,10 @@ class ProxyIRCDDUser():
 
 
 class IRCDDUser(IRCUser):
+    """
+    IRC protocol implementation which handles user connections.
+    """
+
     password = "no password"
 
     def receive(self, sender_name, recipient, message):

@@ -167,11 +167,12 @@ def _delete_channel(topic, chan, lookupd_http_addresses):
 class RemoteReadWriter(object):
     """
     A high level producer/consumer for publishing/consuming from NSQ.
-    Maintains a single long-lived `nsq.Writer`, a set of `nsq.Reader`s,
-    and a set of callbacks. The mapping between `Reader`s and callbacks is 1:1.
+    Maintains a single long-lived :class:`nsq.Writer`, a set of
+    :class:`nsq.Reader`s, and a set of callbacks. The mapping between
+    :class:`nsq.Reader`s and callbacks is 1:1.
 
-    Expects a list of `NSQD` and `NSQLookupd` addresses to be passed along with
-    a unique server identifier.
+    Expects a list of ``NSQD`` and ``NSQLookupd`` addresses to be passed
+    along with a unique server identifier.
 
     :param nsqd_addresses: a list of strings in the form 'tcp_address:port'
     that correspond to ``NSQD`` instances that the writer should publish to.

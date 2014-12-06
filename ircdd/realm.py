@@ -11,13 +11,6 @@ from ircdd.protocol import ProxyIRCDDUser
 
 
 class ShardedRealm(object):
-    implements(portal.IRealm, iwords.IChatService)
-
-    _encoding = "utf8"
-
-    createUserOnRequest = True
-    createGroupOnRequest = False
-
     """
     A realm which may exist in a sharded state across different
     servers. It works with :class:`ircdd.server.ShardedUser` and
@@ -29,6 +22,14 @@ class ShardedRealm(object):
     It subscribes to groups on behalf of the locally connected users
     and performs message relaying to the latter.
     """
+
+    implements(portal.IRealm, iwords.IChatService)
+
+    _encoding = "utf8"
+
+    createUserOnRequest = True
+    createGroupOnRequest = False
+
     def __init__(self, ctx, name):
         self.name = name
 
