@@ -3,19 +3,43 @@
 Security
 ********
 
-Security is largely handled by the host operating system because the application runs in a virtual environment.
+Currently ``IRCDD`` is insecure by default. This is due to the fact that securing a multi-component solution like that is not
+a one-size-fits-all problem. To secure the whole system, each separate component and the underlying architecture
+must be secure by themselves.
 
-Inherent Security Features
-==========================
+The following sections serve as an initial guideline for securing the system.
 
-The system does have some security features built into its design.
+IRCDD Security:
+===============
 
-Compartmentalized System
-------------------------
+The server does not provide any security and encryption at this moment. Those can be added through 
+``Twisted``, but the application does not make use of them.
 
-Every application the system requires is run in an isolated container. This means that if something were to obtain root access on the IRC server itself, for example, it would not have access to the Database.
+CoreOS Security:
+================
 
-Encrypted Database Components
------------------------------
+``CoreOS`` manages connections to the cores in the cluster via SSH. SSH keys have to be added before booting
+the nodes through the ``cloud-config`` file.
 
-Documents and tables in the database are encrypted. More specifically, each password is encrypted, and other sensitive information is as well.
+For more details refer to ``CoreOS``'s documentation:
+https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
+
+RethinkDB Cluster Security:
+===========================
+
+``RethinkDB`` does not provide built-in encryption of data. The recommended practice for securing
+the exposed ports and interfaces is to utilize ``IPTables`` and filter out intruders.
+
+For more details refer to ``RethinkDB``'s documentation:
+http://rethinkdb.com/docs/security/
+
+
+NSQ Cluster Security:
+=====================
+
+``NSQ`` has the option of both providing encryption for client and cluster connections and
+verifying requests through an authentication server.
+
+For more details consult ``NSQ``'s documentation:
+
+http://www.nsq.io
