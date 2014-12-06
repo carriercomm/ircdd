@@ -26,3 +26,6 @@ API Documentation:
 
 .. automodule:: ircdd.server
     :members:
+
+.. automodule:: ircdd.remote
+    :members:

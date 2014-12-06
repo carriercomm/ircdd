@@ -1,3 +1,8 @@
+"""
+This module contains the user controller which interfaces
+between the protocol connection and the RDB/NSQ cluster.
+"""
+
 from time import time
 
 from zope.interface import implements
@@ -7,15 +12,25 @@ from twisted.internet import task
 
 
 class ShardedUser(object):
-    implements(iwords.IUser)
-    mind = None
-    realm = None
-
     """
     A User which may exist in a sharded state on different IRC
     servers. It subscribes to its own topic on the message queue
     and sends/responds to remote messages.
+
+    :param ctx: an initialized context to use for connecting to ``RDB`` and
+    ``NSQ``.
+
+    :param name: the nickname for this user.
+    :type string:
+
+    :param mind: an :class:`twisted.words.service.IRCUser` object that
+    handles the connection for this user.
+
     """
+    implements(iwords.IUser)
+    mind = None
+    realm = None
+
     def __init__(self, ctx, name, mind=None):
         self.name = name
         self.groups = []
@@ -47,13 +62,14 @@ class ShardedUser(object):
         Sends message to the given recipient, even if the
         recipient is not local.
         Sending is done in four steps:
-            1. Determine that recipient exists via the
-            database.
-            2. Dispatch message to the recipient's
-            message topic.
-            3. Add message to the database chat log.
-            4. Dispatch message to the local shard of the
-            recipient, if any.
+
+        1. Determine that recipient exists via the
+        database.
+        2. Dispatch message to the recipient's
+        message topic.
+        3. Add message to the database chat log.
+        4. Dispatch message to the local shard of the
+        recipient, if any.
 
         :param recipient: the IRCUser/Group to send to.
         :param message: the message to send.

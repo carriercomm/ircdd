@@ -9,7 +9,12 @@ from twisted.internet import defer
 # If user name is not found, it adds the user to the database as unregistered
 class DatabaseCredentialsChecker:
     """
-    An extremely simple database credentials checker.
+    An extremely simple database credentials checker. It matches
+    credentials with database data, taking into account session
+    activity.
+
+    :param ctx: an initialized context which will be used
+    for connecting to ``RDB``.
     """
 
     implements(checkers.ICredentialsChecker)
@@ -22,7 +27,9 @@ class DatabaseCredentialsChecker:
 
     def addUser(self, username):
         """
-        Adds a user.
+        Creates a user in the database.
+
+        :param username: the nickname for the user.
         """
         self.ctx["db"].createUser(username)
 

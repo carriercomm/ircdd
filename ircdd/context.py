@@ -13,6 +13,8 @@ from ircdd import database
 class ConfigStore(dict):
     """
     Container for configuration values and shared acces modules.
+    Behaves like a dictionary whose keys can be accessed like object
+    attributes.
     """
 
     def __init__(self, *args, **kwargs):

@@ -5,9 +5,14 @@ from twisted.python import log
 
 class IRCDDatabase:
     """
-    Wrapper class for database actions, so that the IRC server
-    does not have to know anything about how rethinkDB works
-    in order to use it
+    Container class which holds common queries and handles connection
+    to ``RDB``.
+
+    :param db: the name of the database to connect to.
+
+    :param host: the hostname of the database to connect to.
+
+    :param port: the client port of the databse.
     """
 
     USERS_TABLE = 'users'
@@ -30,11 +35,17 @@ class IRCDDatabase:
     def createUser(self, nickname,
                    email="", password="", registered=False, permissions={}):
         """
-        Add a user to the user table
-        User table has the following fields:
-        nickname (string), email (string), password (string),
-        registered (boolean), permissions (dict of channel name: permissions
-        contains channel name (string) and permissions (string))
+        Add a user to the user table.
+
+        :param nickname: the nickname of the user.
+
+        :param email: optional email for the user.
+
+        :param password: optional password for the user.
+
+        :param regustered: whether the user is registered or not.
+
+        :param permissions: a mapping of user permissions.
         """
 
         exists = r.table(self.USERS_TABLE).get(
@@ -55,8 +66,14 @@ class IRCDDatabase:
 
     def heartbeatUserSession(self, nickname):
         """
-        A heart beat to keep track of the state of the
-        user in a login session.
+        Updates the ``last_heartbeat`` field of this user's session.
+        If the session does not exist it creates it.
+
+        :param nickname: the nickname of the user whose session will
+        be updated.
+
+        Returns:
+            Dict of the user session.
         """
         session = r.table(self.USER_SESSIONS_TABLE).get(
             nickname
@@ -76,7 +93,10 @@ class IRCDDatabase:
 
     def removeUserSession(self, nickname):
         """
-        Removes the user from the database session.
+        Removes a user's session from existance.
+
+        :param nickname: the nickname of the user whose session
+        will be deleted.
         """
         return r.table(self.USER_SESSIONS_TABLE).get(
             nickname
@@ -84,7 +104,12 @@ class IRCDDatabase:
 
     def removeUserFromGroup(self, nickname, group):
         """
-        Removes the user from a particular group.
+        Removes a user's subscription from a group.
+
+        :param nickname: the nickname of the user to unsubscribe.
+
+        :param group: the name of the group to which the user
+        is subscribed.
         """
         return r.table(self.GROUP_STATES_TABLE).get(group).replace(
             r.row.without({"users": {nickname: True}})
@@ -92,8 +117,13 @@ class IRCDDatabase:
 
     def heartbeatUserInGroup(self, nickname, group):
         """
-        A heart beat to keep track of the state of the
-        user in a group.
+        Updates a user's subscription to a group. If the subscription
+        does not exist it is created. If the group state entry for the
+        group does not exist, it is created.
+
+        :param nickname: the nickname of the user to subscribe.
+
+        :param group: the name of the group to subscribe to.
         """
         presence = r.table(self.GROUP_STATES_TABLE).get(
             group
@@ -119,7 +149,15 @@ class IRCDDatabase:
 
     def observeGroupState(self, group):
         """
-        Return the state of a group in the database.
+        Creates a changefeed that watches the state changes for a given
+        group. The changefeed lives on its own dedicated connection
+        to ``RDB``. The changefeed also filters out any inactive users.
+
+        :param group: the name of the group which the changefeed will
+        observe.
+
+        Returns:
+            A changefeed that returns changes for the given group.
         """
         conn = r.connect(db=self.db,
                          host=self.rdb_host,
@@ -140,8 +178,15 @@ class IRCDDatabase:
 
     def observeGroupMeta(self, group):
         """
-        Return metadata about a group from the database.
+        Creates a changefeed that watches changes to the group's metadata.
+        The changefeed has its own dedicated connection to ``RDB``.
+
+        :param group: the group whose meta to watch.
+
+        Returns:
+            A changefeed which iterates the changes for teh given group.
         """
+
         conn = r.connect(db=self.db,
                          host=self.rdb_host,
                          port=self.rdb_port)
@@ -179,8 +224,14 @@ class IRCDDatabase:
 
     def lookupUserSession(self, nickname):
         """
-        Finds the user with a given nickname in the session and
-        returns the dict for it.
+        Finds and returns the session for a given user. Merges
+        an ``active`` field which is True if the ``last_heartbeat``
+        was within the past 30 seconds.
+
+        :param nickname: the user's nickname.
+
+        Returns:
+            A dictionary with the user session.
         """
         exists = r.table(self.USER_SESSIONS_TABLE).get(
             nickname
@@ -201,6 +252,15 @@ class IRCDDatabase:
         """
         Finds unregistered user with same nickname and registers them with
         the given email, password, and sets registered to True
+
+        :param nickname: the nickname of the user to register.
+
+        :param email: the email for the user.
+
+        :param password: the password with which to register.
+
+        Returns:
+            The updated user dta
         """
 
         self.checkIfValidEmail(email)
@@ -218,7 +278,12 @@ class IRCDDatabase:
 
     def deleteUser(self, nickname):
         """
-        Find and delete the user given by nickname
+        Find and delete the user given by nickname.
+
+        :param nickname: the nickname of the user to delete.
+
+        Returns:
+            The deleted user data.
         """
 
         return r.table(self.USERS_TABLE).get(
@@ -228,7 +293,7 @@ class IRCDDatabase:
     def setPermission(self, nickname, channel, permission):
         """
         Set permission for user for the given channel to the permissions string
-        defined by permission
+        defined by permission.
         """
         current_permissions = r.table(self.USERS_TABLE).get(
             nickname
@@ -247,12 +312,15 @@ class IRCDDatabase:
 
     def createGroup(self, name, channelType):
         """
-        Create an IRC channel (if it doesn't exist yet) in the channels table
-        Fields for the channels table are:
-        name (string) the name of the channel
-        owner (string) the owner (by nickname) of the channel
-        type (string) public or private
-        topic (dict) dict of topic message, topic author, topic time.
+        Creates a new group metadata and group state.
+
+        :param name: the name of the new group.
+
+        :param channelType: the type of the group.
+
+        Returns:
+            The metadata of the new group,
+            The state of the new group.
         """
         assert name
         assert channelType
@@ -286,6 +354,11 @@ class IRCDDatabase:
         """
         Return the IRC channel dict for channel with given name,
         along with the merged state data.
+
+        :param name: the name of the group.
+
+        Returns:
+            The group data or None.
         """
         group = r.table(self.GROUPS_TABLE).get(
             name
@@ -303,7 +376,12 @@ class IRCDDatabase:
 
     def getGroupState(self, name):
         """
-        Return the state of a given group.
+        Gets the raw group state.
+
+        :param name: the name of the group whose state to return.
+
+        Returns:
+            The state of the group
         """
         return r.table(self.GROUP_STATES_TABLE).get(
             name
@@ -311,9 +389,11 @@ class IRCDDatabase:
 
     def listGroups(self):
         """
-        Returns a list of all groups. The documents in the list
-        contain both the current metadata (name, topic, etc) and
-        state information (user sessions).
+        Returns a list of all groups, filtered by the ``public``
+        type. Appends a list of current users to the groupdata.
+
+        Returns:
+            A list of group data.
         """
 
         return list(r.table(self.GROUPS_TABLE).filter(
@@ -325,7 +405,12 @@ class IRCDDatabase:
 
     def deleteGroup(self, name):
         """
-        Delete the IRC channel with the given channel name
+        Delete the IRC channel with the given channel name.
+
+        :param name: the group name.
+
+        Returns:
+            The deleted group data.
         """
 
         deleted_group = r.table(self.GROUPS_TABLE).get(
@@ -340,7 +425,17 @@ class IRCDDatabase:
 
     def setGroupTopic(self, name, topic, author):
         """
-        Set the IRC channel's topic
+        Set the IRC channel's topic.
+
+        :param name: the name of the group whose topic
+        to set.
+
+        :param topic: the topic string.
+
+        :param author: the nickname of the author.
+
+        Returns:
+            The new group meta.
         """
 
         return r.table(self.GROUPS_TABLE).get(name).update({
