@@ -21,9 +21,15 @@ class DatabaseCredentialsChecker:
         self.ctx = ctx
 
     def addUser(self, username):
+        """
+        Adds a user.
+        """
         self.ctx["db"].createUser(username)
 
     def _cbPasswordMatch(self, matched, username):
+        """
+        Verifies a password matches what is stored.
+        """
         if matched:
             return username
         else:

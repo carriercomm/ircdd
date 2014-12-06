@@ -62,6 +62,9 @@ class ShardedRealm(object):
         return ShardedGroup(self.ctx, name)
 
     def logoutFactory(self, avatar, facet):
+        """
+        Factory for providing logout functionality.
+        """
         def logout():
             getattr(facet, "logout", lambda: None)()
             avatar.realm = avatar.mind = None
@@ -95,10 +98,11 @@ class ShardedRealm(object):
             raise NotImplementedError(self, interfaces)
         return self.getUser(avatarId).addCallback(gotAvatar)
 
-    # def itergroups(self):
-    #    return defer.succeed(iter(self.ctx.db.listGroups()))
-
     def addUser(self, user):
+        """
+        Adds a user to the local store. If the user is already
+        registered a Duplicate User error is returned.
+        """
         if user.name in self.users:
             return defer.fail(failure.Failure(ewords.DuplicateUser()))
 
@@ -106,6 +110,10 @@ class ShardedRealm(object):
         return defer.succeed(user)
 
     def getUser(self, name):
+        """
+        Returns a user if she is registered with the system.
+        Also verifies that the name is valid unicode.
+        """
         assert isinstance(name, unicode)
 
         if self.createUserOnRequest:
@@ -182,6 +190,9 @@ class ShardedRealm(object):
         return defer.fail(failure.Failure(ewords.NoSuchGroup(name)))
 
     def getGroup(self, name):
+        """
+        Get a group in the local shard's store.
+        """
         assert isinstance(name, unicode)
 
         # Get this setting from the cluster's policy
@@ -194,6 +205,10 @@ class ShardedRealm(object):
         return self.lookupGroup(name)
 
     def addGroup(self, group):
+        """
+        Adds a group to the local shard's store.
+        If the group already exists return a DuplicateGroup error.
+        """
         if group.name in self.groups:
             return defer.fail(failure.Failure(ewords.DuplicateGroup()))
 
@@ -201,6 +216,10 @@ class ShardedRealm(object):
         return defer.succeed(group)
 
     def createGroup(self, name):
+        """
+        Verify that the groups name is valid unicode.
+        If the group doesn't already exist, create it.
+        """
         assert isinstance(name, unicode)
 
         def cbLookup(group):

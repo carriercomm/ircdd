@@ -16,6 +16,10 @@ class IRCDDatabase:
     GROUP_STATES_TABLE = 'group_states'
 
     def __init__(self, db="ircdd", host="127.0.0.1", port=28015):
+        """
+        Initialize the database. If no values are provided,
+        assume host address of 'localhost' and port of 28015.
+        """
         self.rdb_host = host
         self.rdb_port = port
         self.db = db
@@ -50,6 +54,10 @@ class IRCDDatabase:
             log.err("User already exists: %s" % nickname)
 
     def heartbeatUserSession(self, nickname):
+        """
+        A heart beat to keep track of the state of the
+        user in a login session.
+        """
         session = r.table(self.USER_SESSIONS_TABLE).get(
             nickname
         ).run(self.conn)
@@ -67,16 +75,26 @@ class IRCDDatabase:
             }).run(self.conn)
 
     def removeUserSession(self, nickname):
+        """
+        Removes the user from the database session.
+        """
         return r.table(self.USER_SESSIONS_TABLE).get(
             nickname
         ).delete().run(self.conn)
 
     def removeUserFromGroup(self, nickname, group):
+        """
+        Removes the user from a particular group.
+        """
         return r.table(self.GROUP_STATES_TABLE).get(group).replace(
             r.row.without({"users": {nickname: True}})
         ).run(self.conn)
 
     def heartbeatUserInGroup(self, nickname, group):
+        """
+        A heart beat to keep track of the state of the
+        user in a group.
+        """
         presence = r.table(self.GROUP_STATES_TABLE).get(
             group
         ).run(self.conn)
@@ -100,6 +118,9 @@ class IRCDDatabase:
             }).run(self.conn)
 
     def observeGroupState(self, group):
+        """
+        Return the state of a group in the database.
+        """
         conn = r.connect(db=self.db,
                          host=self.rdb_host,
                          port=self.rdb_port)
@@ -118,6 +139,9 @@ class IRCDDatabase:
         ).run(conn)
 
     def observeGroupMeta(self, group):
+        """
+        Return metadata about a group from the database.
+        """
         conn = r.connect(db=self.db,
                          host=self.rdb_host,
                          port=self.rdb_port)
@@ -154,6 +178,10 @@ class IRCDDatabase:
             return None
 
     def lookupUserSession(self, nickname):
+        """
+        Finds the user with a given nickname in the session and
+        returns the dict for it.
+        """
         exists = r.table(self.USER_SESSIONS_TABLE).get(
             nickname
         ).run(self.conn)
@@ -274,6 +302,9 @@ class IRCDDatabase:
             return None
 
     def getGroupState(self, name):
+        """
+        Return the state of a given group.
+        """
         return r.table(self.GROUP_STATES_TABLE).get(
             name
         ).run(self.conn)

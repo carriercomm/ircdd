@@ -14,6 +14,9 @@ class ProxyIRCDDUser():
     which is connected to a different node.
     """
     def __init__(self, ctx, name):
+        """
+        Initializes a proxy ircdd user object.
+        """
         self.ctx = ctx
         self.name = name
 
@@ -56,11 +59,17 @@ class IRCDDUser(IRCUser):
                          recipient_name, L)
 
     def userJoined(self, group, user_name, user_hostname):
+        """
+        Indicate that a user has joined the IRCDD server.
+        """
         self.join(
             "%s!%s@%s" % (user_name, user_name, user_hostname),
             "#" + group.name)
 
     def userLeft(self, group, user_name, reason=None):
+        """
+        Indicate that a user has left the IRCDD server.
+        """
         assert reason is None or isinstance(reason, unicode)
 
         self.part(
@@ -69,6 +78,9 @@ class IRCDDUser(IRCUser):
             (reason or u"leaving").encode(self.encoding, 'replace'))
 
     def irc_JOIN(self, prefix, params):
+        """
+        Add a user into the specified group, if it exists.
+        """
         try:
             groupName = params[0].decode(self.encoding)
         except UnicodeDecodeError:
@@ -100,6 +112,9 @@ class IRCDDUser(IRCUser):
         self.realm.getGroup(groupName).addCallbacks(cbGroup, ebGroup)
 
     def irc_NAMES(self, prefix, params):
+        """
+        Return a list of names of the groups available on the server.
+        """
         try:
             groupName = params[-1].decode(self.encoding)
         except UnicodeDecodeError:
