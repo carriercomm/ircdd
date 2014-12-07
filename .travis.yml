@@ -22,4 +22,4 @@ script:
     - sudo nsqlookupd&
     - sudo nsqd --lookupd-tcp-address="127.0.0.1:4160" &
     - sudo python setup.py flake8
-    - sudo python setup.py nosetests
+    - sudo python setup.py nosetests -v --with-id
