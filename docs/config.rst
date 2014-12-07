@@ -173,7 +173,7 @@ NSQLookupd Server Configuration:
 
 Refer to the ``NSQ`` project's documentation:
 
-www.nsq.io
+http://www.nsq.io
 
 NSQD Configuration:
 ===================
@@ -205,4 +205,4 @@ NSQD Server Configuration:
 
 Refer to the ``NSQ`` project's documentation for more available settings:
 
-www.nsq.io
+http://www.nsq.io
