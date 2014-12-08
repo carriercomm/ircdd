@@ -12,7 +12,8 @@ def _create_topic(topic, lookupd_http_addresses):
     :param topic: The name of the topic to create.
     :type string:
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -36,7 +37,8 @@ def _topics(lookupd_http_addresses):
     Utility function which lists the known topics
     on each of the given lookupd http addresses.
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -61,7 +63,8 @@ def _delete_topic(topic, lookupd_http_addresses):
     :param topic: The name of the topic to empty.
     :type string:
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -84,12 +87,13 @@ def _create_channel(topic, chan, lookupd_http_addresses):
     on the specified topic for each of the given
     lookupd http addresses.
     :param topic: The name of the topic on which the channel
-    will be registered.
+                  will be registered.
     :type string:
     :param chan: The name of the channel to create.
     :type string:
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -114,10 +118,11 @@ def _channels(topic, lookupd_http_addresses):
     on the specified topic for each of the given
     lookupd http addresses.
     :param topic: The name of the topic on which the channels
-    will be listed.
+                  will be listed.
     :type string:
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -142,12 +147,13 @@ def _delete_channel(topic, chan, lookupd_http_addresses):
     on the specified topic for each of the given
     lookupd http addresses.
     :param topic: The name of the topic on which the channel
-    will be deleted.
+                  will be deleted.
     :type string:
     :param chan: The name of the channel to delete.
     :type string:
     :param lookupd_http_adddresses: A list of address
-    strings that point to `NSQLookupd` instances.
+                                    strings that point to `NSQLookupd`
+                                    instances.
     :type list:
     """
     for addr in lookupd_http_addresses:
@@ -175,16 +181,18 @@ class RemoteReadWriter(object):
     along with a unique server identifier.
 
     :param nsqd_addresses: a list of strings in the form 'tcp_address:port'
-    that correspond to ``NSQD`` instances that the writer should publish to.
+                           that correspond to ``NSQD`` instances that the
+                           writer should publish to.
     :type list:
 
     :param lookupd_addresses: a list of strings in the form 'http_address:port'
-    that correspond to ``NSQLookupd`` instances that the readers should poll
-    for producers.
+                              that correspond to ``NSQLookupd`` instances that
+                              the readers should poll for producers.
     :type list:
 
     :param server_name: a string that uniquely idetifies this server instance.
-    It will be used as channel name for both publishing and reading from `NSQ`.
+                        It will be used as channel name for both publishing and
+                        reading from `NSQ`.
     :type string:
     """
 
@@ -212,12 +220,14 @@ class RemoteReadWriter(object):
         :type string:
 
         :param callback: the callback which will be called when a message is
-        read. The callback must take a single argument (`message`),
-        call :meth:`nsq.Message.finish()`/:meth:`nsq.Message.requeue()` and
-        return `True`/`False` when it is done with the message. The callback
-        can expect `message` to be :class:`nsq.Message`, with an additional
-        attribute `parsed_body` which contains the `json` parsed body of the
-        message (still available in raw from through the `body` attribute).
+                         read. The callback must take a single argument
+                         (`message`), call :meth:`nsq.Message.finish()`/
+                         :meth:`nsq.Message.requeue()` and return `True`/
+                         `False` when it is done with the message. The callback
+                         can expect `message` to be :class:`nsq.Message`, with
+                         an additional attribute `parsed_body` which contains
+                         the `json` parsed body of the message (still available
+                         in raw from through the `body` attribute).
         :type callable:
         """
         # Check if topic exists, if not - create it
@@ -284,8 +294,8 @@ class RemoteReadWriter(object):
         :type string:
 
         :param callback: an optional callback which will be
-        called once :method:`nsq.Writer.pub()` completes.
-        Defaults to a logging callback.
+                         called once :method:`nsq.Writer.pub()` completes.
+                         Defaults to a logging callback.
         :type callable:
         """
 

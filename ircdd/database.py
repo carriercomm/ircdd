@@ -70,7 +70,7 @@ class IRCDDatabase:
         If the session does not exist it creates it.
 
         :param nickname: the nickname of the user whose session will
-        be updated.
+                         be updated.
 
         Returns:
             Dict of the user session.
@@ -96,7 +96,7 @@ class IRCDDatabase:
         Removes a user's session from existance.
 
         :param nickname: the nickname of the user whose session
-        will be deleted.
+                         will be deleted.
         """
         return r.table(self.USER_SESSIONS_TABLE).get(
             nickname
@@ -109,7 +109,7 @@ class IRCDDatabase:
         :param nickname: the nickname of the user to unsubscribe.
 
         :param group: the name of the group to which the user
-        is subscribed.
+                      is subscribed.
         """
         return r.table(self.GROUP_STATES_TABLE).get(group).replace(
             r.row.without({"users": {nickname: True}})
@@ -154,7 +154,7 @@ class IRCDDatabase:
         to ``RDB``. The changefeed also filters out any inactive users.
 
         :param group: the name of the group which the changefeed will
-        observe.
+                      observe.
 
         Returns:
             A changefeed that returns changes for the given group.
@@ -428,7 +428,7 @@ class IRCDDatabase:
         Set the IRC channel's topic.
 
         :param name: the name of the group whose topic
-        to set.
+                     to set.
 
         :param topic: the topic string.
 
