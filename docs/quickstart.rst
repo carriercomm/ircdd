@@ -31,13 +31,13 @@ Software Prerequisites
 You will need the following software installed on your host OS:
 
 **Git**
-- ``www.git-scm.com``
+- http://www.git-scm.com
 
 **Vagrant**
-- ``www.vagrantup.com``
+- http://www.vagrantup.com
 
 **Virtual Box**
-- `www.virtualbox.org`
+- http://www.virtualbox.org
 
 Project setup
 =============
