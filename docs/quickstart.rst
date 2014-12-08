@@ -313,3 +313,41 @@ This is the bash log of performing the above tutorial. The output of your steps 
         rethinkdb@1.service		a831dd40.../172.17.8.102	activating	start-pre
 
         # Some time after
+        core@core-01 ~ $ fleetctl list-units
+        UNIT				MACHINE				ACTIVE	SUB
+        rethinkdb-discovery@1.service	22a1cd27.../172.17.8.101	active	running
+        rethinkdb@1.service		22a1cd27.../172.17.8.101	active	running
+        
+        core@core-01 ~ $ fleetctl start rethinkdb@2
+        Unit rethinkdb@2.service launched on 2e332120.../172.17.8.102
+        core@core-01 ~ $ fleetctl start rethinkdb-discovery@2
+        Unit rethinkdb-discovery@2.service launched on 2e332120.../172.17.8.102
+
+        core@core-01 ~ $ fleetctl start nsqlookupd@{1..2}
+        Unit nsqlookupd@1.service launched on 2e332120.../172.17.8.102
+        Unit nsqlookupd@2.service launched on 22a1cd27.../172.17.8.101
+        core@core-01 ~ $ fleetctl start nsqlookupd-discovery@{1..2}
+        Unit nsqlookupd-discovery@2.service launched on 22a1cd27.../172.17.8.101
+        Unit nsqlookupd-discovery@1.service launched on 2e332120.../172.17.8.102
+        
+        core@core-01 ~ $ fleetctl start nsqd
+        Triggered global unit nsqd.service start
+        
+        core@core-01 ~ $ fleetctl start ircdd@{1..2}
+        Unit ircdd@1.service launched on 22a1cd27.../172.17.8.101
+        Unit ircdd@2.service launched on 2e332120.../172.17.8.102
+
+        core@core-01 ~ $ fleetctl list-units
+        UNIT				MACHINE				ACTIVE	SUB
+        ircdd@1.service			22a1cd27.../172.17.8.101	active	running
+        ircdd@2.service			2e332120.../172.17.8.102	active	running
+        nsqd.service			22a1cd27.../172.17.8.101	active	running
+        nsqd.service			2e332120.../172.17.8.102	active	running
+        nsqlookupd-discovery@1.service	2e332120.../172.17.8.102	active	running
+        nsqlookupd-discovery@2.service	22a1cd27.../172.17.8.101	active	running
+        nsqlookupd@1.service		2e332120.../172.17.8.102	active	running
+        nsqlookupd@2.service		22a1cd27.../172.17.8.101	active	running
+        rethinkdb-discovery@1.service	22a1cd27.../172.17.8.101	active	running
+        rethinkdb-discovery@2.service	2e332120.../172.17.8.102	active	running
+        rethinkdb@1.service		22a1cd27.../172.17.8.101	active	running
+        rethinkdb@2.service		2e332120.../172.17.8.102	active	running
