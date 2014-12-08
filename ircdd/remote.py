@@ -220,14 +220,13 @@ class RemoteReadWriter(object):
         :type string:
 
         :param callback: the callback which will be called when a message is
-                         read. The callback must take a single argument
-                         (`message`), call :meth:`nsq.Message.finish()`/
-                         :meth:`nsq.Message.requeue()` and return `True`/
-                         `False` when it is done with the message. The callback
-                         can expect `message` to be :class:`nsq.Message`, with
-                         an additional attribute `parsed_body` which contains
-                         the `json` parsed body of the message (still available
-                         in raw from through the `body` attribute).
+            read. The callback must take a single argument (`message`), call
+            :meth:`nsq.Message.finish()`/ :meth:`nsq.Message.requeue()` and
+            return `True`/`False` when it is done with the message. The
+            callback can expect `message` to be :class:`nsq.Message`, with
+            an additional attribute `parsed_body` which contains the `json`
+            parsed body of the message (still available in raw from through
+            the `body` attribute).
         :type callable:
         """
         # Check if topic exists, if not - create it
@@ -294,8 +293,8 @@ class RemoteReadWriter(object):
         :type string:
 
         :param callback: an optional callback which will be
-                         called once :method:`nsq.Writer.pub()` completes.
-                         Defaults to a logging callback.
+            called once :method:`nsq.Writer.pub()` completes.
+            Defaults to a logging callback.
         :type callable:
         """
 

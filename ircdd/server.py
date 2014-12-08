@@ -10,7 +10,7 @@ class IRCDDFactory(protocol.ServerFactory):
     protocol. Expects to receive an initialized context object at creation.
 
     :param ctx: A :class:`ircdd.context.ConfigStore` object which contains both
-    the raw config values and the initialized shared drivers.
+        the raw config values and the initialized shared drivers.
     """
 
     protocol = IRCDDUser
@@ -42,8 +42,8 @@ def makeServer(ctx):
     specified `port`.
 
     :param ctx: a :class:`ircdd.context.ConfigStore` object that
-    contains both the raw config values and the initialized shared
-    drivers.
+        contains both the raw config values and the initialized shared
+        drivers.
     """
     f = IRCDDFactory(ctx)
     IRCDDUser.ctx = ctx

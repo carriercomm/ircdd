@@ -12,7 +12,7 @@ class ShardedGroup(object):
     and sends/receives remote messages.
 
     :param ctx: an initialized context object that will be used for
-                ``RDB`` and ``NSQ`` access.
+        ``RDB`` and ``NSQ`` access.
 
     :param name: the name of the group.
     """
@@ -138,7 +138,7 @@ class ShardedGroup(object):
         topic receives a message.
 
         :param message: A :class:`nsq.Message` which contains
-                        the IRC message and metadata in its parsed_body.
+            the IRC message and metadata in its parsed_body.
         """
         msg_body = message.parsed_msg["msg_body"]
         msg_type = msg_body["type"]
@@ -162,8 +162,7 @@ class ShardedGroup(object):
 
         :param sender_name: the name of the sender.
 
-        :param recipient: an object representing the local
-                          recipient.
+        :param recipient: an object representing the local recipient.
 
         :param message: a dict containing the message data
         """
@@ -252,7 +251,7 @@ class ShardedGroup(object):
         :param added_user_name: the name of the added user.
 
         :param added_user_hostname: the hostname to which
-                                    the user was added.
+            the user was added.
         """
         additions = []
 

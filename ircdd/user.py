@@ -18,13 +18,13 @@ class ShardedUser(object):
     and sends/responds to remote messages.
 
     :param ctx: an initialized context to use for connecting to ``RDB`` and
-    ``NSQ``.
+        ``NSQ``.
 
     :param name: the nickname for this user.
     :type string:
 
     :param mind: an :class:`twisted.words.service.IRCUser` object that
-    handles the connection for this user.
+        handles the connection for this user.
 
     """
     implements(iwords.IUser)
@@ -89,7 +89,7 @@ class ShardedUser(object):
         topic receives a message.
 
         :param message: A :class:`nsq.Message` which
-        contains the IRC message and metadata in its parsed body.
+            contains the IRC message and metadata in its parsed body.
         """
         parsed_msg = message.parsed_msg
         msg_type = parsed_msg["msg_body"]["type"]
