@@ -235,6 +235,81 @@ This is the bash log of performing the above tutorial. The output of your steps 
     
    .. code-block:: shell-session
 
+        ➜  ~  git clone http://github.com/kzvezdarov/ircdd
+        Cloning into 'ircdd'...
+        remote: Counting objects: 1405, done.
+        remote: Compressing objects: 100% (604/604), done.
+        remote: Total 1405 (delta 810), reused 1267 (delta 729)
+        Receiving objects: 100% (1405/1405), 249.10 KiB | 337.00 KiB/s, done.
+        Resolving deltas: 100% (810/810), done.
+        Checking connectivity... done.
+
+        ➜  ~  cd ircdd/scripts/config/dev-vagrant 
+        ➜  dev-vagrant git:(master) curl http://discovery.etcd.io/new
+        https://discovery.etcd.io/f9f94b83cde8f4a5a01e436ca82251c6
+
+        # put the new token in cloud-config
+        ➜  dev-vagrant git:(master) vim cloud-config.yaml 
+
+        ➜  dev-vagrant git:(master) ✗ export NUM_INSTANCES=2
+        ➜  dev-vagrant git:(master) ✗ export SYNCED_FOLDER=/home/kiril/ircdd
+        
 1. Running the Project:
    
    .. code-block:: shell-session
+
+        ➜  dev-vagrant git:(master) ✗ vagrant up
+        # (lots of vagrant output omitted)
+
+        ➜  dev-vagrant git:(master) ✗ eval $(ssh-agent)
+        Agent pid 4462
+        ➜  dev-vagrant git:(master) ✗ ssh-add ~/.vagrant.d/insecure_private_key 
+        Identity added: /home/kiril/.vagrant.d/insecure_private_key (rsa w/o comment)
+        
+        ➜  dev-vagrant git:(master) ✗ vagrant ssh core-01 -- -A                
+        Last login: Mon Dec  8 04:49:24 2014 from 10.0.2.2
+        CoreOS (alpha)
+        core@core-01 ~ $
+
+        core@core-01 ~ $ systemctl status etcd
+        ● etcd.service - etcd
+           Loaded: loaded (/usr/lib64/systemd/system/etcd.service; static)
+          Drop-In: /run/systemd/system/etcd.service.d
+                   └─20-cloudinit.conf
+           Active: active (running) since Mon 2014-12-08 04:55:15 UTC; 1min 11s ago
+         Main PID: 972 (etcd)
+           CGroup: /system.slice/etcd.service
+                   └─972 /usr/bin/etcd
+
+        Dec 08 04:55:15 core-01 systemd[1]: Started etcd.
+        Dec 08 04:55:15 core-01 etcd[972]: [etcd] Dec  8 04:55:15.314 INFO      | The path /var/lib/etcd/log is in btrfs
+        Dec 08 04:55:15 core-01 etcd[972]: [etcd] Dec  8 04:55:15.315 INFO      | Set NOCOW to path /var/lib/etcd/log succeeded
+        Dec 08 04:55:15 core-01 etcd[972]: [etcd] Dec  8 04:55:15.315 INFO      | Discovery via https://discovery.etcd.io using prefix /180f5bfc55ec8f093398db792e6ad96f.
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.506 INFO      | Discovery _state was empty, so this machine is the initial leader.
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.506 INFO      | Discovery fetched back peer list: []
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.507 INFO      | f67a70a1c1244c098791c73007d5c642 is starting a new cluster
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.512 INFO      | etcd server [name f67a70a1c1244c098791c73007d5c642, listen on :4001, advertised url http://172.17.8.101:4001]
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.513 INFO      | peer server [name f67a70a1c1244c098791c73007d5c642, listen on :7001, advertised url http://172.17.8.101:7001]
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.513 INFO      | f67a70a1c1244c098791c73007d5c642 starting in peer mode
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.514 INFO      | f67a70a1c1244c098791c73007d5c642: state changed from 'initialized' to 'follower'.
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.515 INFO      | f67a70a1c1244c098791c73007d5c642: state changed from 'follower' to 'leader'.
+        Dec 08 04:55:16 core-01 etcd[972]: [etcd] Dec  8 04:55:16.516 INFO      | f67a70a1c1244c098791c73007d5c642: leader changed from '' to 'f67a70a1c1244c098791c73007d5c642'.
+        Dec 08 04:55:45 core-01 etcd[972]: [etcd] Dec  8 04:55:45.615 INFO      | f67a70a1c1244c098791c73007d5c642: peer added: 'a831dd40d4404743ab440d6d1eb8ac68'
+
+        core@core-01 ~ $ fleetctl list-machines
+        MACHINE		IP		METADATA
+        a831dd40...	172.17.8.102	-
+        f67a70a1...	172.17.8.101	-
+        
+        core@core-01 ~ $ fleetctl submit ircdd/scripts/services/*
+        core@core-01 ~ $ fleetctl start rethinkdb@1
+        Unit rethinkdb@1.service launched on a831dd40.../172.17.8.102
+        core@core-01 ~ $ fleetctl start rethinkdb-discovery@1
+        Unit rethinkdb-discovery@1.service launched on a831dd40.../172.17.8.102
+
+        core@core-01 ~ $ fleetctl list-units
+        UNIT				MACHINE				ACTIVE		SUB
+        rethinkdb-discovery@1.service	a831dd40.../172.17.8.102	inactive	dead
+        rethinkdb@1.service		a831dd40.../172.17.8.102	activating	start-pre
+
+        # Some time after
