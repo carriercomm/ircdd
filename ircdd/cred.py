@@ -14,7 +14,7 @@ class DatabaseCredentialsChecker:
     activity.
 
     :param ctx: an initialized context which will be used
-                for connecting to ``RDB``.
+        for connecting to ``RDB``.
     """
 
     implements(checkers.ICredentialsChecker)

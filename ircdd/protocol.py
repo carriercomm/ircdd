@@ -43,9 +43,9 @@ class IRCDDUser(IRCUser):
 
         :param sender: Who is sending the message.
         :param recipient: Who is receiving the message; not neccessarily
-                          this IRCUser.
+            this IRCUser.
         :param message: A message dictionary. If remote, the message will
-                        contain additional metadata.
+            contain additional metadata.
         """
         # This is an ugly hack from the Twisted codebase.
         # No idea why it has to be like this but I am too scared
