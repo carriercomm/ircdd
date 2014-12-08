@@ -23,7 +23,7 @@ class ShardedRealm(object):
     and performs message relaying to the latter.
 
     :param ctx: an initialized context which will be used to access
-    ``RDB`` and ``NSQ``.
+                ``RDB`` and ``NSQ``.
 
     :param name: the name of the realm.
     """
@@ -98,7 +98,7 @@ class ShardedRealm(object):
         :param avatarId: the nickname (id) of the requested avatar.
 
         :param mind: a :class:`twisted.words.service.IRCUser` instance
-        representing the user connection.
+                     representing the user connection.
 
         :param interfaces: a list of interfaces for the request.
         """
@@ -244,7 +244,7 @@ class ShardedRealm(object):
         Adds a group to this realm.
 
         :param group: the :class:`ircdd.group.ShardedGroup`
-        instance to add.
+                      instance to add.
         """
         if group.name in self.groups:
             return defer.fail(failure.Failure(ewords.DuplicateGroup()))
