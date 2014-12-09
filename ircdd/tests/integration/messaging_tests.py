@@ -148,9 +148,3 @@ class TestMessaging():
 
         assert expected == self.getResponse(jane_protocol)
         assert expected == self.getResponse(john_protocol)
-
-    def test_chan_message(self):
-        pass
-
-    def test_set_topic_msg(self):
-        pass
