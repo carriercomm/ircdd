@@ -1,0 +1,53 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:Firewall-1 - [0:0]
+
+# Accept connections on the docker0 bridge from local containers
+-A INPUT -i docker0 -p tcp -s 172.17.0.0/16 -j ACCEPT
+
+# Accept private traffic on the etcd cluster port
+-A INPUT -i eth1 -p tcp -s 10.132.0.0/16 --dport 7001 -j ACCEPT
+# Accept local and private traffic on the etcd http port
+-A INPUT -i eth1 -p tcp -s 10.132.0.0/16,172.17.0.0/16,127.0.0.1 --dport 4001 -j ACCEPT
+
+# Accelt local and private traffic on the NSQ ports
+-A INPUT -i eth1 -p tcp -s 10.132.0.0/16,172.17.0.0/16,127.0.0.1 -m multiport --dports 4150,4151,4160,4161 -j ACCEPT
+
+# Accept local and private traffic on the RDB ports
+-A INPUT -i eth1 -p tcp -s 10.132.0.0/16,172.17.0.0/16,127.0.0.1 -m multiport --dports 29015,28015,8080 -j ACCEPT
+
+
+#================
+# Docker Forwards
+#================
+-A FORWARD -d 172.17.0.0/16 -i eth0 -o docker0 -p tcp -m tcp --dport 5799 -j ACCEPT
+
+-A FORWARD -d 172.17.0.0/16 -i eth1 -o docker0 -p tcp -m multiport --dports 4150,4151,4160,4161 -j ACCEPT
+
+-A FORWARD -d 172.17.0.0/16 -i eth1 -o docker0 -p tcp -m multiport --dports 29015,28015,8080 -j ACCEPT
+
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -i docker0 -o eth1 -j ACCEPT
+-A FORWARD -i docker0 -o eth0 -p tcp -m tcp --dport 5799 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+
+-A INPUT -j Firewall-1
+-A FORWARD -j Firewall-1
+-A Firewall-1 -i lo -j ACCEPT
+
+# Handle pings and stuff
+-A Firewall-1 -p icmp --icmp-type echo-reply -j ACCEPT
+-A Firewall-1 -p icmp --icmp-type destination-unreachable -j ACCEPT
+-A Firewall-1 -p icmp --icmp-type time-exceeded -j ACCEPT 
+-A Firewall-1 -p icmp --icmp-type echo-request -j ACCEPT
+
+-A Firewall-1 -m conntrack --ctstate  ESTABLISHED,RELATED -j ACCEPT
+
+-A Firewall-1 -m conntrack --ctstate NEW -m multiport -p tcp --dports 22,80,443,5799 -j ACCEPT
+
+-A Firewall-1 -j LOG
+-A Firewall-1 -j REJECT --reject-with icmp-host-prohibited 
+
+COMMIT
