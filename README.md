@@ -8,9 +8,11 @@ IRC Distributed Daemon
 
 [![Build Status](https://travis-ci.org/kzvezdarov/ircdd.svg)](https://travis-ci.org/kzvezdarov/ircdd)
 
-[![Stories in Ready](https://badge.waffle.io/kzvezdarov/ircdd.svg?label=ready&title=Ready)](http://waffle.io/kzvezdarov/ircdd)
-
 [![Documentation Status](https://readthedocs.org/projects/ircdd/badge/?version=latest)](https://readthedocs.org/projects/ircdd/?badge=latest)
+
+### Warning: no further development
+
+This project will not be developed any further - the current version is considered final. It served its purpose as an interesting prototype for several modifications to the IRC protocol.
 
 
 **IRCDD** is an IRC daemon designed to have a scalable distributed model and strong consistency.
@@ -27,7 +29,7 @@ In addition to that the project's [wiki](https://github.com/kzvezdarov/ircdd) mi
 
 ## Contributing:
 
-Contributions are welcome once initial development is complete. Keep an eye for the 1.0 tag.
+This project will not be developed any further and will not accept contributions.
 
 
 ## Authors:
